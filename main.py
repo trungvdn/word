@@ -5,7 +5,7 @@ import argparse
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Generate Word documents from Excel data')
-parser.add_argument('--ma-kh', type=str, help='Filter by Ma_KH (customer code)')
+parser.add_argument('--ma-kh', type=str, nargs='+', help='Filter by Ma_KH (customer code). Can specify multiple codes.')
 args = parser.parse_args()
 
 # Đọc file Excel (test với 2 hàng) - giữ CMND như string
@@ -13,7 +13,7 @@ df = pd.read_excel("text.xls", dtype={"CMND": str, "Số CMND": str})
 
 # Filter by MA_KH if provided
 if args.ma_kh:
-    df = df[df["Ma_KH"].astype(str) == args.ma_kh]
+    df = df[df["Ma_KH"].astype(str).isin(args.ma_kh)]
 
 # Tạo thư mục output
 output_dir = "output"
