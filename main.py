@@ -1,15 +1,28 @@
 import pandas as pd
 from docxtpl import DocxTemplate
 import os
+import argparse
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Generate Word documents from Excel data')
+parser.add_argument('--ma-kh', type=str, help='Filter by Ma_KH (customer code)')
+args = parser.parse_args()
 
 # Đọc file Excel (test với 2 hàng) - giữ CMND như string
-df = pd.read_excel("text.xls", nrows=2, dtype={"CMND": str, "Số CMND": str})
+df = pd.read_excel("text.xls", dtype={"CMND": str, "Số CMND": str})
+
+# Filter by MA_KH if provided
+if args.ma_kh:
+    df = df[df["Ma_KH"].astype(str) == args.ma_kh]
 
 # Tạo thư mục output
 output_dir = "output"
 os.makedirs(output_dir, exist_ok=True)
 
 for index, row in df.iterrows():
+    ma_kh = str(row.get("Ma_KH", ""))
+    print(f"📝 Processing: {row.get('Ten_KH', '')} (Ma_KH: {ma_kh})")
+    
     doc = DocxTemplate("template.docx")
     context = {
         "Ten_KH": row.get("Ten_KH", ""),
@@ -32,5 +45,3 @@ for index, row in df.iterrows():
     
     filename = f"{output_dir}/{safe_name}.docx"
     doc.save(filename)
-
-print("✅ Done! Đã tạo file Word hàng loạt từ CSV.")
